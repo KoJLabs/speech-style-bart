@@ -32,9 +32,9 @@ class SpeechModel(LightningModule):
         self.logits = []
         self.labels = []
         self.save_hyperparameters()
-        self.model_config = AutoConfig.from_pretrained(config['model']['text_mode_path'])
-        self.tokenizer = AutoTokenizer.from_pretrained(config['model']['text_mode_path'])
-        self.model = AutoModelForSeq2SeqLM.from_pretrained(config['model']['text_mode_path'], config=self.model_config)
+        self.model_config = AutoConfig.from_pretrained(config['model']['text_model_path'])
+        self.tokenizer = AutoTokenizer.from_pretrained(config['model']['text_model_path'])
+        self.model = AutoModelForSeq2SeqLM.from_pretrained(config['model']['text_model_path'], config=self.model_config)
         self.metric = evaluate.load("sacrebleu")
 
     def forward(self, **inputs):

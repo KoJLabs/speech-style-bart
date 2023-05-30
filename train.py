@@ -2,13 +2,13 @@ from datetime import datetime
 from typing import Optional
 
 from pytorch_lightning import (
-    ModelCheckpoint, 
-    LearningRateMonitor, 
     Trainer, 
     seed_everything
 )
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
+from pytorch_lightning.callbacks import ModelCheckpoint,LearningRateMonitor
+
 
 from dataset import SpeechDataModule
 from model import SpeechModel
