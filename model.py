@@ -36,6 +36,8 @@ class SpeechModel(LightningModule):
         self.tokenizer = AutoTokenizer.from_pretrained(config['model']['text_model_path'])
         self.model = AutoModelForSeq2SeqLM.from_pretrained(config['model']['text_model_path'], config=self.model_config)
         self.metric = evaluate.load("sacrebleu")
+        self.scheduler_name = config['model']['scheduler_name']
+        self.learning_rate = config['model']['lr']
 
     def forward(self, **inputs):
         return self.model(**inputs)
@@ -86,25 +88,28 @@ class SpeechModel(LightningModule):
         self.labels.clear()
 
     def configure_optimizers(self):
-        """Prepare optimizer and schedule (linear warmup and decay)"""
-        model = self.model
-        no_decay = ["bias", "LayerNorm.weight"]
+        param_optimizer = list(self.named_parameters())
+        
+        no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
         optimizer_grouped_parameters = [
-            {
-                "params": [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
-                "weight_decay": self.hparams.weight_decay,
-            },
-            {
-                "params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)],
-                "weight_decay": 0.0,
-            },
+            {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01},
+            {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
         ]
-        optimizer = AdamW(optimizer_grouped_parameters, lr=self.hparams.learning_rate, eps=self.hparams.adam_epsilon)
-
-        scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(
-            optimizer,
-            num_warmup_steps=self.hparams.warmup_steps,
-            num_training_steps=self.trainer.estimated_stepping_batches,
-        )
-        scheduler = {"scheduler": scheduler, "interval": "step", "frequency": 1}
-        return [optimizer], [scheduler]
+    
+        optimizer = AdamW(optimizer_grouped_parameters,
+                          lr=self.learning_rate,
+                          correct_bias=False)
+        scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer,
+                                                    num_warmup_steps = int(0.05 * self.trainer.estimated_stepping_batches),
+                                                    num_training_steps = self.trainer.estimated_stepping_batches)
+        my_optimizer = {
+            "optimizer": optimizer,
+            "lr_scheduler": {
+                "scheduler": scheduler,
+                "frequency": 1,
+                "name" : self.scheduler_name,
+                "interval" : "step"
+                }
+        }
+        
+        return my_optimizer

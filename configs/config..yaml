@@ -8,9 +8,9 @@ data:
     source: source
     target: target                       
 model:
-    optimizer_name: lr scheduler
+    scheduler_name: get_cosine_with_hard_restarts_schedule_with_warmup
     text_model_path : gogamza/kobart-base-v2
-    lr : 0.00005
+    lr : 0.00002
 trainer:
     accelerator : cuda
     max_epochs : 3
