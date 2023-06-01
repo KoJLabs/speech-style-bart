@@ -12,6 +12,7 @@ from transformers import (
     AutoModelForSeq2SeqLM,
     AutoTokenizer,
     get_cosine_with_hard_restarts_schedule_with_warmup,
+    get_cosine_schedule_with_warmup
 )
 from dataset import SpeechDataModule
 import argparse
@@ -99,7 +100,7 @@ class SpeechModel(LightningModule):
         optimizer = AdamW(optimizer_grouped_parameters,
                           lr=self.learning_rate,
                           correct_bias=False)
-        scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer,
+        scheduler = get_cosine_schedule_with_warmup(optimizer,
                                                     num_warmup_steps = int(0.05 * self.trainer.estimated_stepping_batches),
                                                     num_training_steps = self.trainer.estimated_stepping_batches)
         my_optimizer = {

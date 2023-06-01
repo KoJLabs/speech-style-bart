@@ -15,6 +15,26 @@ from transformers import (
     get_linear_schedule_with_warmup,
 )
 
+MAP ={
+    'formal': '문어체',
+    'informal': '구어체',
+    'android': '안드로이드',
+    'azae': '아재',
+    'chat': '채팅',
+    'choding': '초등학생',
+    'emoticon': '이모티콘',
+    'enfp': 'enfp',
+    'gentle': '신사',
+    'halbae': '할아버지',
+    'halmae': '할머니',
+    'joongding': '중학생',
+    'king': '왕',
+    'naruto': '나루토',
+    'seonbi': '선비',
+    'sosim': '소심한',
+    'translator': '번역기'
+}
+
 class SpeechDataModule(LightningDataModule):
     def __init__(
             self,
@@ -71,7 +91,8 @@ class SpeechDataModule(LightningDataModule):
     def convert_to_features(self, example_batch, indices=None):
         source_text = []
         for source, style in zip(example_batch['source'], example_batch['target_style']):
-            source_text.append(f"{style} 형식으로 변환:" + source)
+            map_style = MAP[style]
+            source_text.append(f"{map_style} 형식으로 변환:" + source)
 
         target_text = []
         for target in example_batch['target']:
