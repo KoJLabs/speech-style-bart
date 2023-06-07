@@ -56,7 +56,7 @@ class SpeechDataModule(LightningDataModule):
         for split in self.dataset.keys():
             self.dataset[split] = self.dataset[split].map(
                 self.convert_to_features,
-                batched=True,
+                batched=False,
                 remove_columns=self.dataset[split].column_names,
             )
 
@@ -89,17 +89,13 @@ class SpeechDataModule(LightningDataModule):
             )
     
     def convert_to_features(self, example_batch, indices=None):
-        source_text = []
-        for source, style in zip(example_batch['source'], example_batch['target_style']):
-            map_style = MAP[style]
-            source_text.append(f"{map_style} 형식으로 변환:" + source)
+        map_style = MAP[example_batch['target_style']]
+        source_text = f"{map_style} 형식으로 변환:" + example_batch['source']
 
-        target_text = []
-        for target in example_batch['target']:
-            target_text.append(target + '</s>')
+        target_text = example_batch['target'] + self.tokenizer.eos_token
 
         features = self.tokenizer(
-            example_batch['source'],
+            source_text,
             text_target=target_text,
             max_length=self.max_seq_length,
             truncation=True,

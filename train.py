@@ -80,12 +80,7 @@ def main(config):
         mlflow.log_param('batch_size', config['data']['batch_size'])
 
         trainer.fit(model, datamodule=dm)
-
-        mlflow.pytorch.log_model(trainer, artifact_path = artifacts_path)
         trainer.validate(model, dm)
-
-        mlflow.log_metric('sacrebleu', eval)
-
 
 if __name__ == "__main__":
     args = parse_args()
