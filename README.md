@@ -15,6 +15,12 @@
 ## BLEU Score
 * 25.35
 
+## Package
+```bash
+poetry install
+poetry shell
+```
+
 ## Usage
 아래와 같은 옵션을 통해 말투를 생성할 수 있습니다.
 
