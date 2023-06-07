@@ -1,0 +1,22 @@
+Task : TextGeneration
+Experiment : speech-aug
+seed : 42
+data: 
+    max_length : 128
+    batch_size : 32
+    num_workers : 4  
+    source: source
+    target: target                       
+model:
+    scheduler_name: get_cosine_schedule_with_warmup
+    text_model_path : gogamza/kobart-base-v2
+    lr : 0.000002
+trainer:
+    accelerator : cuda
+    max_epochs : 10
+    devices: 0
+    strategy: auto
+callback:
+    monitor : val_loss                      
+    dirpath : checkpoint/style-transfer-ver2    # model save path
+    save_top_k : 1                        # save best model by monitor score
